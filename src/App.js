@@ -1,5 +1,5 @@
 import './App.css';
-import React, {Component, Fragment} from 'react'
+import React, {useState, Fragment} from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Navbar from './components/layouts/Navbar'
 import Users from './components/users/Users'
@@ -9,14 +9,13 @@ import Search from './components/users/search'
 import Alert from './components/layouts/Alert'
 import About from './components/pages/About'
 
-class App extends Component {
-  state = {
-    users : [],
-    user: {},
-    loading: false,
-    repos:[],
-    alert: null
-  }
+const App = () =>  {
+  const [users,setUsers] = useState([])
+  const [user,setUser] = useState({})
+  const [repos,setRepos] = useState([])
+  const [loading,setLoading] = useState(false)
+  const [alert,showAlert] = useState(null)
+
   // async componentDidMount(){
   //   this.setState({loading: true})
   //   const res = await axios.get(`https://api.github.com/users?client_id=${process.env.REACT_GITHUB_ID}&client_secret=${process.env.REACT_GITHUB_SECRET_ID}`)
@@ -25,61 +24,66 @@ class App extends Component {
   // }
 
   //search github users
-  searchUsers = async text =>{
-    this.setState({loading: true})
+  const searchUsers = async text =>{
+    setLoading(true)
     const res = await axios.get(`https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_GITHUB_ID}&client_secret=${process.env.REACT_GITHUB_SECRET_ID}`)
     
-    this.setState({users:res.data.items, loading:false})
+    setUsers(res.data.items)
+    setLoading(false)
   }
+
 //search single user
-getUser = async username => {
-  this.setState({loading: true})
+const getUser = async username => {
+  setLoading(true)
     const res = await axios.get(`https://api.github.com/users/${username}?client_id=${process.env.REACT_GITHUB_ID}&client_secret=${process.env.REACT_GITHUB_SECRET_ID}`)
     
-    this.setState({user:res.data, loading:false})
+   setUser(res.data)
+   setLoading(false)
 }
 
 //get single user repo
-getUserRepos = async username => {
-  this.setState({loading: true})
+const getUserRepos = async username => {
+    setLoading(true)
     const res = await axios.get(`https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_GITHUB_ID}&client_secret=${process.env.REACT_GITHUB_SECRET_ID}`)
     
-    this.setState({repos:res.data, loading:false})
+    setRepos(res.data)
+    setLoading(false)
 }
 
   //clear users func
-  clearUsers = () => this.setState({users: [], loading:false})
-
-  //setalert
-  setAlert = (msg, type) => {
-    this.setState({alert : {msg,type}})
-
-    setTimeout(() => this.setState({alert: null}), 3000);
+  const clearUsers = () => {
+    setUser([])
+    setLoading(false)
   }
 
-  render(){
-   const { users,loading, user , repos} = this.state
+  //setalert
+  const setAlert = (msg, type) => {
+  
+    showAlert({msg,type})
+    setTimeout(() => setAlert(null), 3000);
+  }
+
     return(
       <Router>
         <div className="App">
         <Navbar  />
         <div className="container">
-        <Alert alert={this.state.alert}/>
+        <Alert alert={alert}/>
         <Switch>
           <Route exact path='/' render= {props =>(
 
             <Fragment>
-                  <Search searchUsers={this.searchUsers} 
-                  clearUsers={this.clearUsers} showClear = 
+                  <Search searchUsers={searchUsers} 
+                  clearUsers={clearUsers} showClear = 
                   {users.length > 0 ? true : false}
-                  setAlert = {this.setAlert}
+                  setAlert = {setAlert}
                   />
                   <Users users={users} loading = {loading}/>
             </Fragment>
             )}/>
             <Route exact path='/about'component = {About} />
             <Route exact path='/user/:login' render={props => (
-              <User {...props} getUser = {this.getUser} getUserRepos = {this.getUserRepos} repos={repos} user ={user}  loading ={loading}/>
+              <User {...props} getUser = {getUser} getUserRepos = {getUserRepos} repos={repos} user ={user}  loading ={loading}/>
             )}/>
           </Switch>
         </div>
@@ -87,7 +91,6 @@ getUserRepos = async username => {
       </Router>
       
     );
-  }
   }
  
 
