@@ -53,7 +53,7 @@ const getUserRepos = async username => {
 
   //clear users func
   const clearUsers = () => {
-    setUser([])
+    setUsers([])
     setLoading(false)
   }
 
