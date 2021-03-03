@@ -14,7 +14,7 @@ const App = () =>  {
   const [user,setUser] = useState({})
   const [repos,setRepos] = useState([])
   const [loading,setLoading] = useState(false)
-  const [alert,showAlert] = useState(null)
+  const [alert,setAlert] = useState(null)
 
 
   // async componentDidMount(){
@@ -58,9 +58,8 @@ const getUserRepos = async username => {
   }
 
   //setalert
-  const setAlert = (msg, type) => {
-  
-    showAlert({msg,type})
+  const showAlert = (msg, type) => { 
+    setAlert({msg,type})
     setTimeout(() => setAlert(null), 3000);
   }
 
@@ -77,7 +76,7 @@ const getUserRepos = async username => {
                   <Search searchUsers={searchUsers} 
                   clearUsers={clearUsers} showClear = 
                   {users.length > 0 ? true : false}
-                  setAlert = {setAlert}
+                  setAlert = {showAlert}
                   />
                   <Users users={users} loading = {loading}/>
             </Fragment>
